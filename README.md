@@ -28,13 +28,28 @@ Stop the server with `Ctrl + C`.
 
 ## Endpoints
 
+Base URL: `http://localhost:3000`
+
 | Method | URL | What it does | Responses |
 |---|---|---|---|
+| `POST` | `/bookings` | Book a room | 201, 400, 409 |
 | `GET` | `/bookings` | List all bookings | 200 |
-| `POST` | `/bookings` | Book a room | 201 booked, 400 bad input, 409 room already booked |
-| `DELETE` | `/bookings/:id` | Cancel a booking | 200 cancelled, 404 not found |
+| `DELETE` | `/bookings/:id` | Cancel a booking | 200, 404 |
 
-### Book a room
+## How to use each API
+
+### 1. Book a room: `POST /bookings`
+
+Send a JSON body with these fields:
+
+| Field | Type | Required | Example | Notes |
+|---|---|---|---|---|
+| `room` | string | yes | `"Room A"` | Room names are case-sensitive: `"Room A"` and `"room a"` count as different rooms |
+| `start` | string (date) | yes | `"2026-11-02T10:00"` | Use the format `YYYY-MM-DDTHH:mm` |
+| `end` | string (date) | yes | `"2026-11-02T11:00"` | Must be after `start` |
+| `bookedBy` | string | yes | `"Jobair"` | Name of the person booking |
+
+**curl:**
 
 ```bash
 curl -X POST http://localhost:3000/bookings \
@@ -42,22 +57,102 @@ curl -X POST http://localhost:3000/bookings \
   -d '{"room":"Room A","start":"2026-11-02T10:00","end":"2026-11-02T11:00","bookedBy":"Jobair"}'
 ```
 
-Response (201):
+**Postman:** method `POST`, URL `http://localhost:3000/bookings`. Under **Body**, choose **raw** and set the type to **JSON**, then paste:
+
+```json
+{
+  "room": "Room A",
+  "start": "2026-11-02T10:00",
+  "end": "2026-11-02T11:00",
+  "bookedBy": "Jobair"
+}
+```
+
+**Responses:**
+
+`201 Created`: the room is booked. The response contains the new booking and its `id`. Keep the `id`, because you need it to cancel.
 
 ```json
 { "id": 1, "room": "Room A", "start": "2026-11-02T10:00", "end": "2026-11-02T11:00", "bookedBy": "Jobair" }
 ```
 
-### List bookings
+`400 Bad Request`: a field is missing.
+
+```json
+{ "error": "room, start, end and bookedBy are required" }
+```
+
+`400 Bad Request`: `start` or `end` is not a real date (for example `"tomorrow"`).
+
+```json
+{ "error": "start and end must be valid dates" }
+```
+
+`400 Bad Request`: `end` is the same as or before `start`.
+
+```json
+{ "error": "end must be after start" }
+```
+
+`409 Conflict`: the room already has a booking that overlaps this time. `clash` shows the existing booking that is in the way.
+
+```json
+{
+  "error": "room already booked",
+  "clash": { "id": 1, "room": "Room A", "start": "2026-11-02T10:00", "end": "2026-11-02T11:00", "bookedBy": "Jobair" }
+}
+```
+
+### 2. List all bookings: `GET /bookings`
+
+No body or parameters.
+
+**curl:**
 
 ```bash
 curl http://localhost:3000/bookings
 ```
 
-### Cancel a booking
+**Postman:** method `GET`, URL `http://localhost:3000/bookings`.
+
+**Response:**
+
+`200 OK`: an array of all bookings, in the order they were made. It is `[]` when there are none.
+
+```json
+[
+  { "id": 1, "room": "Room A", "start": "2026-11-02T10:00", "end": "2026-11-02T11:00", "bookedBy": "Jobair" },
+  { "id": 2, "room": "Room B", "start": "2026-11-02T10:30", "end": "2026-11-02T11:30", "bookedBy": "Sara" }
+]
+```
+
+### 3. Cancel a booking: `DELETE /bookings/:id`
+
+Put the booking's `id` in the URL. The `id` comes from the `POST` response or from `GET /bookings`.
+
+**curl:**
 
 ```bash
 curl -X DELETE http://localhost:3000/bookings/1
+```
+
+**Postman:** method `DELETE`, URL `http://localhost:3000/bookings/1`.
+
+**Responses:**
+
+`200 OK`: the booking is deleted, and its time slot is free to book again.
+
+```json
+{
+  "message": "booking cancelled",
+  "booking": { "id": 1, "room": "Room A", "start": "2026-11-02T10:00", "end": "2026-11-02T11:00", "bookedBy": "Jobair" }
+}
+```
+
+`404 Not Found`: no booking has that `id`, or it was already cancelled.
+
+```json
+{ "error": "booking not found" }
 ```
 
 ## Rules
