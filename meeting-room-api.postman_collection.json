@@ -1,0 +1,148 @@
+{
+  "info": {
+    "name": "Meeting Room API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Room A 10-11 (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"Room A\",\n  \"start\": \"2026-11-02T10:00\",\n  \"end\": \"2026-11-02T11:00\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "2. Room A 10:30-11:30 (409 overlap)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"Room A\",\n  \"start\": \"2026-11-02T10:30\",\n  \"end\": \"2026-11-02T11:30\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Room B 10:30-11:30 (201 different room)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"Room B\",\n  \"start\": \"2026-11-02T10:30\",\n  \"end\": \"2026-11-02T11:30\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "4. Room A 11-10 (400 end before start)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"Room A\",\n  \"start\": \"2026-11-02T11:00\",\n  \"end\": \"2026-11-02T10:00\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "5. Missing room (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"2026-11-02T12:00\",\n  \"end\": \"2026-11-02T13:00\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "6. Room A 11-12 (201 back-to-back allowed)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"Room A\",\n  \"start\": \"2026-11-02T11:00\",\n  \"end\": \"2026-11-02T12:00\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "7. Cancel booking 1 (200)",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:3000/bookings/1"
+      }
+    },
+    {
+      "name": "8. Room A 10-11 again (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:3000/bookings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"Room A\",\n  \"start\": \"2026-11-02T10:00\",\n  \"end\": \"2026-11-02T11:00\",\n  \"bookedBy\": \"Jobair\"\n}"
+        }
+      }
+    },
+    {
+      "name": "9. Cancel id 999 (404)",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:3000/bookings/999"
+      }
+    },
+    {
+      "name": "10. Get all bookings (200)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/bookings"
+      }
+    }
+  ]
+}
